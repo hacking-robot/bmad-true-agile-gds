@@ -1,0 +1,34 @@
+name: sprint-review
+description: "Close the current sprint, calculate velocity, handle incomplete stories, and prepare for next sprint"
+author: "BMad"
+
+# Critical variables from config
+config_source: "{project-root}/_bmad/gds/config.yaml"
+user_name: "{config_source}:user_name"
+communication_language: "{config_source}:communication_language"
+document_output_language: "{config_source}:document_output_language"
+user_skill_level: "{config_source}:user_skill_level"
+date: system-generated
+planning_artifacts: "{config_source}:planning_artifacts"
+sprint_artifacts: "{config_source}:sprint_artifacts"
+
+# Workflow components
+installed_path: "{project-root}/_bmad/gds/workflows/4-production/sprint-review"
+instructions: "{installed_path}/instructions.md"
+template: "{installed_path}/review-template.md"
+
+# Variables and inputs
+sprints_dir: "{sprint_artifacts}/sprints"
+velocity_log: "{sprints_dir}/velocity-log.yaml"
+project_context: "**/project-context.md"
+
+# Smart input file references
+input_file_patterns:
+  epics:
+    description: "All epics to reference story details"
+    whole: "{planning_artifacts}/*epic*.md"
+    sharded: "{planning_artifacts}/*epic*/*.md"
+    load_strategy: "FULL_LOAD"
+
+# Output files
+default_output_file: "{sprints_dir}/sprint-{{sprint_number}}-review.md"

@@ -1,0 +1,31 @@
+name: jira-link
+description: "Manually link BMAD stories and epics to Jira issues for tracking integration (no sync, just reference)"
+author: "BMad"
+
+# Critical variables from config
+config_source: "{project-root}/_bmad/gds/config.yaml"
+user_name: "{config_source}:user_name"
+communication_language: "{config_source}:communication_language"
+date: system-generated
+planning_artifacts: "{config_source}:planning_artifacts"
+sprint_artifacts: "{config_source}:sprint_artifacts"
+
+# Workflow components
+installed_path: "{project-root}/_bmad/gds/workflows/4-production/jira-link"
+instructions: "{installed_path}/instructions.md"
+
+# Input files
+epics_pattern: "{planning_artifacts}/*epic*.md"
+sprints_pattern: "{sprint_artifacts}/sprints/sprint-*.yaml"
+
+# Smart input file references
+input_file_patterns:
+  epics:
+    description: "All epics to find items to link"
+    whole: "{planning_artifacts}/*epic*.md"
+    sharded: "{planning_artifacts}/*epic*/*.md"
+    load_strategy: "FULL_LOAD"
+  sprints:
+    description: "Sprint files to find stories to link"
+    whole: "{sprint_artifacts}/sprints/sprint-*.yaml"
+    load_strategy: "FULL_LOAD"

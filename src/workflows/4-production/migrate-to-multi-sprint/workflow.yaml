@@ -1,0 +1,51 @@
+# Migrate to Multi-Sprint - Convert existing BMAD project to multi-sprint structure
+name: "migrate-to-multi-sprint"
+description: "Migrate an existing BMAD project from single-sprint to multi-sprint agile structure. Handles epic field updates, sprint file creation, velocity log, and preserves correct-course history."
+
+author: "BMad Method"
+
+config_source: "{project-root}/_bmad/gds/config.yaml"
+user_name: "{config_source}:user_name"
+communication_language: "{config_source}:communication_language"
+user_skill_level: "{config_source}:user_skill_level"
+document_output_language: "{config_source}:document_output_language"
+date: system-generated
+sprint_artifacts: "{config_source}:sprint_artifacts"
+planning_artifacts: "{config_source}:planning_artifacts"
+
+# Input files to discover
+input_file_patterns:
+  epics:
+    description: "Current epic files to migrate"
+    whole: "{planning_artifacts}/*epic*.md"
+    sharded: "{planning_artifacts}/*epic*/*.md"
+    load_strategy: "FULL_LOAD"
+  
+  sprint_status:
+    description: "Legacy sprint-status.yaml (if exists)"
+    whole: "{sprint_artifacts}/sprint-status.yaml"
+    load_strategy: "FULL_LOAD"
+  
+  change_proposals:
+    description: "Approved sprint change proposals"
+    whole: "{planning_artifacts}/sprint-change-proposal-*.md"
+    load_strategy: "FULL_LOAD"
+  
+  stories:
+    description: "Existing story files for reference"
+    whole: "{sprint_artifacts}/*.md"
+    load_strategy: "INDEX_GUIDED"
+
+# Output locations
+installed_path: "{project-root}/_bmad/gds/workflows/4-production/migrate-to-multi-sprint"
+instructions: "{installed_path}/instructions.md"
+checklist: "{installed_path}/checklist.md"
+
+# Output directories
+sprints_dir: "{sprint_artifacts}/sprints"
+
+# Templates
+templates:
+  sprint: "{installed_path}/templates/sprint-migration-template.yaml"
+  velocity_log: "{installed_path}/templates/velocity-log-template.yaml"
+  epic_update: "{installed_path}/templates/epic-story-fields.md"
