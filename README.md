@@ -1,121 +1,57 @@
-# BMad Game Dev Studio
+# BMad True Agile for Game Dev Studio
 
-[![Version](https://img.shields.io/npm/v/bmad-game-dev-studio?color=blue&label=version)](https://www.npmjs.com/package/bmad-game-dev-studio)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Discord](https://img.shields.io/badge/Discord-Join%20Community-7289da?logo=discord&logoColor=white)](https://discord.gg/gk8jAdXWmj)
+A fork of [BMad Game Dev Studio](https://github.com/bmad-code-org/bmad-module-game-dev-studio) with True Agile enhancements.
 
-**BMGD brings BMad's structured development to game development.** Create working prototypes quickly in Unity, Unreal, Godot—or any engine you choose.
+## What's Different
 
-![BMGD Logo](docs/bmgd-logo.png)
+This fork extends BMad Game Dev Studio with:
 
-## About BMGD
-
-BMad Game Dev Studio (BMGD) adapts the BMad Method framework for game development. Developed by game industry veterans, BMGD guides you through product research, technical design, narrative design, and a full epic-driven production cycle.
-
-## Supported Engines
-
-BMGD has first-class support for:
-
-- [Unity](https://unity.com) — C# scripting, industry-standard for many game types
-- [Unreal Engine](https://www.unrealengine.com/) — Blueprint and C++, AAA powerhouse
-- [Godot](https://godotengine.org/) — Open-source, GDScript, rapidly growing
-
-But you're not limited to these—BMGD works with any platform, from pure C to custom engines.
-
-## What You Can Create
-
-BMGD supports **21 game types**, including:
-
-| Genre | Examples |
-|-------|----------|
-| Action | Platformers, shooters, hack-and-slash |
-| RPG | Action RPG, tactical RPG, dungeon crawlers |
-| Strategy | Turn-based, RTS, tower defense |
-| Simulation | Life sim, tycoon, management |
-| Adventure | Visual novels, point-and-click, walking simulators |
-| And more... | Survival, horror, puzzle, racing, etc. |
-
-## What BMGD Does
-
-- **Product Research** — Market analysis, competitor research, positioning
-- **Game Design Document** — Comprehensive GDD with mechanics, progression, and balance
-- **Narrative Design** — Story structure, characters, dialogue, world-building
-- **Technical Architecture** — Engine patterns, performance considerations
-- **Production Planning** — Epic-driven sprints, story tracking, retrospectives
-- **Quick Prototyping** — Skip the planning, jump straight into building
-
-## What BMGD Doesn't Do
-
-BMGD works *with* coding agents like Claude Code, Cursor, or GitHub Copilot—but it can't create everything:
-
-- Art assets (models, textures, sprites)
-- Animations
-- Music and sound effects
-- Full game implementation from scratch
-
-Think of BMGD as your senior game dev colleague—not a replacement for your entire team.
+- **Deviation Detection**: Step 4 in sprint planning scans your actual codebase and compares it against planning documents, surfacing discrepancies before story creation
+- **Capacity-First Sprint Planning**: Full sprint planning workflow (not just sprint status generation)
+- **Incomplete FR Detection**: Identifies functional requirements from "done" stories that may not be fully implemented
 
 ## Installation
 
-BMGD is installed as a module during BMad Method setup:
+```bash
+npx bmad-true-agile-gds install
+```
+
+## Key Features
+
+### Deviation Detection (Step 4)
+
+Before creating stories, the workflow checks:
+
+1. **Architecture Drift** - File structure, dependencies, patterns vs. architecture spec
+2. **PRD Drift** - Project scope, features vs. PRD requirements  
+3. **Incomplete FRs** - Previous sprint stories marked done but may have unimplemented requirements
+
+User always chooses whether to:
+- Cancel and run `correct-course` to reconcile
+- Proceed aware of the drift
+
+## Supported Platforms
+
+- Unity
+- Unreal Engine
+- Godot
+- Custom / Other
+
+## Module Code
+
+- `tgs` - True Agile Game Dev Studio
+
+## Upstream
+
+Forked from [bmad-code-org/bmad-module-game-dev-studio](https://github.com/bmad-code-org/bmad-module-game-dev-studio)
+
+To sync with upstream:
 
 ```bash
-npx bmad-method@alpha install
+git fetch upstream
+git merge upstream/master
 ```
-
-Select **Game Dev Studio** from the modules list.
-
-## Quick Start
-
-After installing, run from your project root:
-
-```
-/bmad-help          # Get guided help for game development
-/bmgd-quick-dev     # Jump straight into prototyping
-/bmgd-gdd           # Create a Game Design Document
-/bmgd-narrative     # Design your game's story
-```
-
-## Two Ways to Work
-
-| Approach | When to Use | Workflow |
-|----------|-------------|----------|
-| **Quick Flow** | Rapid prototyping, small projects | `/bmgd-quick-dev` |
-| **Full Production** | Full games, teams, long-term | `/bmad-help` for guided path |
-
-## Example: Starting a New Game
-
-```
-You: /bmad-help
-BMGD: What kind of game are you making?
-You: A tactical sci-fi RPG
-BMGD: Great choice! Here's what I recommend...
-    [Guides you through genre-specific planning]
-    [Helps select appropriate workflows]
-```
-
-## Documentation
-
-**[BMad Game Dev Studio Documentation](http://game-dev-studio-docs.bmad-method.org)** — Tutorials, how-to guides, and reference
-
-- [Getting Started](http://game-dev-studio-docs.bmad-method.org/tutorials/)
-- [BMad Method Docs](http://docs.bmad-method.org) — Core framework documentation
-
-## Community
-
-- [Discord](https://discord.gg/gk8jAdXWmj) — Get help from other game devs
-- [GitHub Issues](https://github.com/bmad-code-org/bmad-module-game-dev-studio/issues) — Report bugs
 
 ## License
 
-MIT License — see [LICENSE](LICENSE) for details.
-
----
-
-**BMad Game Dev Studio** — Part of the [BMad Method](https://github.com/bmad-code-org/BMAD-METHOD) ecosystem.
-
-[![Contributors](https://contrib.rocks/image?repo=bmad-code-org/bmad-module-game-dev-studio)](https://github.com/bmad-code-org/bmad-module-game-dev-studio/graphs/contributors)
-
-See [CONTRIBUTORS.md](CONTRIBUTORS.md) for contributor information.
-
-*If you can dream it, you can build it.*
+MIT

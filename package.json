@@ -13,10 +13,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/davideme/bmad-true-agile-gds.git"
+    "url": "git+https://github.com/hacking-robot/bmad-true-agile-gds.git"
   },
   "license": "MIT",
-  "author": "Brian (BMad) Madison",
+  "author": "hacking-robot",
   "type": "module",
   "main": "",
   "scripts": {
@@ -92,5 +92,12 @@
   },
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "contributors": [
+    "Brian (BMad) Madison"
+  ],
+  "bugs": {
+    "url": "https://github.com/hacking-robot/bmad-true-agile-gds/issues"
+  },
+  "homepage": "https://github.com/hacking-robot/bmad-true-agile-gds#readme"
 }
