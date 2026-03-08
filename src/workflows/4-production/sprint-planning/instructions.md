@@ -1,226 +1,537 @@
-# Sprint Planning - Sprint Status Generator
+# Sprint Planning - True Agile (Capacity-First)
 
 <critical>The workflow execution engine is governed by: {project-root}/_bmad/core/tasks/workflow.xml</critical>
 <critical>You MUST have already loaded and processed: {project-root}/_bmad/gds/workflows/4-production/sprint-planning/workflow.yaml</critical>
+<critical>Communicate all responses in {communication_language}</critical>
 
-## 📚 Document Discovery - Full Epic Loading
+## 📚 Overview
 
-**Strategy**: Sprint planning needs ALL epics and stories to build complete status tracking.
+This workflow CREATES stories for a sprint based on capacity. Key features:
+- **Capacity-first** - Set target points, stories created to fit
+- **Just-in-time stories** - Stories created during planning, not pre-planned
+- **Cross-epic selection** - Work on any epic(s) you choose
+- **Story creation** - Agent proposes stories sized to fit capacity
 
-**Epic Discovery Process:**
-
-1. **Search for whole document first** - Look for `epics.md`, `bmm-epics.md`, or any `*epic*.md` file
-2. **Check for sharded version** - If whole document not found, look for `epics/index.md`
-3. **If sharded version found**:
-   - Read `index.md` to understand the document structure
-   - Read ALL epic section files listed in the index (e.g., `epic-1.md`, `epic-2.md`, etc.)
-   - Process all epics and their stories from the combined content
-   - This ensures complete sprint status coverage
-4. **Priority**: If both whole and sharded versions exist, use the whole document
-
-**Fuzzy matching**: Be flexible with document names - users may use variations like `epics.md`, `bmm-epics.md`, `user-stories.md`, etc.
+**This is TRUE AGILE:** Stories are created when needed, not upfront.
 
 <workflow>
 
-<step n="1" goal="Parse epic files and extract all work items">
+<step n="1" goal="Check for Active Sprint">
+
 <action>Load {project_context} for project-wide patterns and conventions (if exists)</action>
 <action>Communicate in {communication_language} with {user_name}</action>
-<action>Look for all files matching `{epics_pattern}` in {epics_location}</action>
-<action>Could be a single `epics.md` file or multiple `epic-1.md`, `epic-2.md` files</action>
 
-<action>For each epic file found, extract:</action>
+<action>Check for existing sprint files in {implementation_artifacts}/sprints/</action>
+<action>Look for any sprint-N.yaml file with status: active</action>
 
-- Epic numbers from headers like `## Epic 1:` or `## Epic 2:`
-- Story IDs and titles from patterns like `### Story 1.1: User Authentication`
-- Convert story format from `Epic.Story: Title` to kebab-case key: `epic-story-title`
+<check if="active sprint found">
+  <action>Load the active sprint file</action>
+  
+  <output>
+⚠️ **Active Sprint Detected**
 
-**Story ID Conversion Rules:**
+Sprint {{active_sprint_number}} is currently active.
 
-- Original: `### Story 1.1: User Authentication`
-- Replace period with dash: `1-1`
-- Convert title to kebab-case: `user-authentication`
-- Final key: `1-1-user-authentication`
+**Sprint {{active_sprint_number}} Status:**
+- Started: {{start_date}}
+- Target End: {{target_end}}
+- Stories: {{story_count}} ({{completed_count}} done)
+- Points: {{completed_points}}/{{total_points}}
 
-<action>Build complete inventory of all epics and stories from all epic files</action>
+You must close the current sprint before creating a new one.
+
+**Options:**
+1. View sprint status
+2. Close sprint (run sprint-review)
+3. Cancel
+  </output>
+  
+  <ask>What would you like to do?</ask>
+  
+  <check if="user selects 2">
+    <output>
+💡 Run `/bmad-bmm-sprint-review` to close Sprint {{active_sprint_number}} first.
+    </output>
+    <action>End workflow</action>
+  </check>
+  
+  <check if="user selects 3">
+    <action>End workflow</action>
+  </check>
+</check>
+
+<check if="no active sprint">
+  <action>Proceed to Step 2</action>
+</check>
+
 </step>
 
-  <step n="0.5" goal="Discover and load project documents">
-    <invoke-protocol name="discover_inputs" />
-    <note>After discovery, these content variables are available: {epics_content} (all epics loaded - uses FULL_LOAD strategy)</note>
-  </step>
+<step n="2" goal="Load Velocity History and Set Capacity">
 
-<step n="2" goal="Build sprint status structure">
-<action>For each epic found, create entries in this order:</action>
+<action>Load {velocity_log} if exists</action>
+<action>Load all epic files from {planning_artifacts}</action>
 
-1. **Epic entry** - Key: `epic-{num}`, Default status: `backlog`
-2. **Story entries** - Key: `{epic}-{story}-{title}`, Default status: `backlog`
-3. **Retrospective entry** - Key: `epic-{num}-retrospective`, Default status: `optional`
+<check if="velocity history exists">
+  <action>Calculate average velocity from last 3 sprints</action>
+  <action>Set {{recommended_capacity}} = average velocity</action>
+  
+  <output>
+📊 **Velocity History:**
 
-**Example structure:**
+| Sprint | Planned | Completed | Velocity |
+|--------|---------|-----------|----------|
+{{for each historical sprint}}
+| {{sprint_number}} | {{planned_points}} | {{completed_points}} | {{velocity}} |
 
-```yaml
-development_status:
-  epic-1: backlog
-  1-1-user-authentication: backlog
-  1-2-account-management: backlog
-  epic-1-retrospective: optional
-```
+**Averages:**
+- Last 3 sprints: {{avg_last_3}} pts
+- All time: {{avg_all_time}} pts
+- Trend: {{trend}}
+
+💡 **Recommended capacity:** {{recommended_capacity}} points
+  </output>
+</check>
+
+<check if="no velocity history">
+  <output>
+📊 **Velocity History:** No previous sprints
+
+💡 This is your first sprint! Consider starting with a conservative capacity (e.g., 10-15 points).
+  </output>
+  
+  <action>Set {{recommended_capacity}} = null</action>
+</check>
+
+<ask>What is your target sprint capacity? (points)</ask>
+
+<action>Set {{target_capacity}} from user response</action>
+
+<action>Proceed to Step 3</action>
 
 </step>
 
-<step n="3" goal="Apply intelligent status detection">
-<action>For each story, detect current status by checking files:</action>
+<step n="3" goal="Select Epics for Sprint">
 
-**Story file detection:**
+<action>Display all epics from {planning_artifacts}</action>
+<action>For each epic, show: status, remaining FRs, previously planned undone stories (if any)</action>
 
-- Check: `{story_location_absolute}/{story-key}.md` (e.g., `stories/1-1-user-authentication.md`)
-- If exists → upgrade status to at least `ready-for-dev`
+<output>
+📦 **Available Epics:**
 
-**Preservation rule:**
+| Epic | Title | Status | Remaining Work |
+|------|-------|--------|----------------|
+{{for each epic}}
+| {{epic_number}} | {{epic_title}} | {{epic_status}} | {{remaining_description}} |
 
-- If existing `{status_file}` exists and has more advanced status, preserve it
-- Never downgrade status (e.g., don't change `done` to `ready-for-dev`)
+**Previously Planned Stories (not yet done):**
+{{for each epic with undone stories}}
+- Epic {{epic_number}}: {{undone_story_titles}}
+{{end}}
 
-**Status Flow Reference:**
+💡 These undone stories are suggestions. You can use them, modify them, or create fresh stories.
+</output>
 
-- Epic: `backlog` → `in-progress` → `done`
-- Story: `backlog` → `ready-for-dev` → `in-progress` → `review` → `done`
-- Retrospective: `optional` ↔ `done`
-  </step>
+<ask>Which epic(s) do you want to work on this sprint? (Enter epic numbers, comma-separated)</ask>
 
-<step n="4" goal="Generate sprint status file">
-<action>Create or update {status_file} with:</action>
+<action>Parse user response into {{selected_epics}} array</action>
 
-**File Structure:**
+<check if="multiple epics selected">
+  <ask>How would you like to allocate {{target_capacity}} points across these epics?</ask>
+  <output>
+Options:
+1. Equal split ({{points_per_epic}} pts each)
+2. Custom allocation
+  </output>
+  
+  <check if="user selects custom">
+    <ask>Enter point allocation for each epic (e.g., "1:15, 2:10"):</ask>
+    <action>Parse into {{epic_allocations}} map</action>
+  </check>
+  
+  <check if="user selects equal">
+    <action>Set {{epic_allocations}} = equal split</action>
+  </check>
+</check>
 
-```yaml
-# generated: {date}
-# project: {project_name}
-# project_key: {project_key}
-# tracking_system: {tracking_system}
-# story_location: {story_location}
+<check if="single epic selected">
+  <action>Set {{epic_allocations}} = full capacity to selected epic</action>
+</check>
 
-# STATUS DEFINITIONS:
-# ==================
-# Epic Status:
-#   - backlog: Epic not yet started
-#   - in-progress: Epic actively being worked on
-#   - done: All stories in epic completed
-#
-# Epic Status Transitions:
-#   - backlog → in-progress: Automatically when first story is created (via create-story)
-#   - in-progress → done: Manually when all stories reach 'done' status
-#
-# Story Status:
-#   - backlog: Story only exists in epic file
-#   - ready-for-dev: Story file created in stories folder
-#   - in-progress: Developer actively working on implementation
-#   - review: Ready for code review (via Dev's code-review workflow)
-#   - done: Story completed
-#
-# Retrospective Status:
-#   - optional: Can be completed but not required
-#   - done: Retrospective has been completed
-#
-# WORKFLOW NOTES:
-# ===============
-# - Epic transitions to 'in-progress' automatically when first story is created
-# - Stories can be worked in parallel if team capacity allows
-# - SM typically creates next story after previous one is 'done' to incorporate learnings
-# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+<action>Proceed to Step 4</action>
 
-generated: { date }
-project: { project_name }
-project_key: { project_key }
-tracking_system: { tracking_system }
-story_location: { story_location }
-
-development_status:
-  # All epics, stories, and retrospectives in order
-```
-
-<action>Write the complete sprint status YAML to {status_file}</action>
-<action>CRITICAL: Metadata appears TWICE - once as comments (#) for documentation, once as YAML key:value fields for parsing</action>
-<action>Ensure all items are ordered: epic, its stories, its retrospective, next epic...</action>
 </step>
 
-<step n="5" goal="Validate and report">
-<action>Perform validation checks:</action>
+<step n="4" goal="Detect Planning Deviations">
 
-- [ ] Every epic in epic files appears in {status_file}
-- [ ] Every story in epic files appears in {status_file}
-- [ ] Every epic has a corresponding retrospective entry
-- [ ] No items in {status_file} that don't exist in epic files
-- [ ] All status values are legal (match state machine definitions)
-- [ ] File is valid YAML syntax
+<action>Load PRD from {planning_artifacts}</action>
+<action>Load Architecture from {planning_artifacts}</action>
+<action>Scan actual project codebase structure</action>
 
-<action>Count totals:</action>
+<action>Compare Architecture specifications against actual codebase:
+  - File/folder structure vs architecture specs
+  - Dependencies in package.json vs architecture decisions
+  - Implementation patterns vs architectural decisions
+</action>
 
-- Total epics: {{epic_count}}
-- Total stories: {{story_count}}
-- Epics in-progress: {{in_progress_count}}
-- Stories done: {{done_count}}
+<check if="architecture drift detected">
+  <output>
+──────────────────────────────────────────────────────────────
+⚠️ **ARCHITECTURE DRIFT DETECTED**
 
-<action>Display completion summary to {user_name} in {communication_language}:</action>
+The codebase differs from the Architecture document:
 
-**Sprint Status Generated Successfully**
+| Expected (Architecture) | Actual (Codebase) |
+|-------------------------|-------------------|
+{{for each drift item}}
+| {{expected}} | {{actual}} |
+{{end}}
 
-- **File Location:** {status_file}
-- **Total Epics:** {{epic_count}}
-- **Total Stories:** {{story_count}}
-- **Epics In Progress:** {{epics_in_progress_count}}
-- **Stories Completed:** {{done_count}}
+❗ **Recommendation:** Cancel planning and run `/bmad-bmm-correct-course` to reconcile the architecture with reality before planning new work.
+──────────────────────────────────────────────────────────────
+  </output>
+  
+  <ask>How would you like to proceed?
+1. Cancel planning (recommended)
+2. Proceed aware of the drift</ask>
+  
+  <check if="user selects 1">
+    <action>End workflow</action>
+  </check>
+</check>
 
+<action>Compare PRD specifications against actual codebase:
+  - Project scope alignment
+  - Feature set coverage
+  - Any code that doesn't map to PRD requirements
+</action>
+
+<check if="PRD drift detected">
+  <output>
+──────────────────────────────────────────────────────────────
+⚠️ **PRD DRIFT DETECTED**
+
+The codebase differs from the PRD document:
+
+{{for each drift item}}
+- {{drift_description}}
+{{end}}
+
+❗ **Recommendation:** Cancel planning and run `/bmad-bmm-correct-course` to reconcile the PRD with reality before planning new work.
+──────────────────────────────────────────────────────────────
+  </output>
+  
+  <ask>How would you like to proceed?
+1. Cancel planning (recommended)
+2. Proceed aware of the drift</ask>
+  
+  <check if="user selects 1">
+    <action>End workflow</action>
+  </check>
+</check>
+
+<action>Scan completed stories from previous sprints for potentially incomplete FRs:
+  - Review stories marked as "done"
+  - Check if all FRs covered by those stories are actually implemented
+</action>
+
+<check if="incomplete FRs found">
+  <output>
+──────────────────────────────────────────────────────────────
+📋 **POTENTIALLY INCOMPLETE FRs DETECTED**
+
+These FRs were in stories marked "done" but may not be fully implemented:
+
+| FR | Description | From Story |
+|----|-------------|------------|
+{{for each incomplete FR}}
+| {{fr_id}} | {{fr_description}} | {{story_key}} |
+{{end}}
+
+You may want to include these in the new sprint to ensure completion.
+──────────────────────────────────────────────────────────────
+  </output>
+  
+  <ask>Include these incomplete FRs in sprint planning? (Y/n)</ask>
+  
+  <check if="user says yes">
+    <action>Add incomplete FRs to {{remaining_frs}} for story creation</action>
+  </check>
+</check>
+
+<check if="no drift detected">
+  <output>
+✅ **Deviation Check Passed**
+
+No significant drift detected between planning documents and codebase.
+  </output>
+</check>
+
+<action>Proceed to Step 5</action>
+
+</step>
+
+<step n="5" goal="Create Stories for Each Epic">
+
+<action>For each epic in {{selected_epics}}:</action>
+<action>Load epic file, PRD, Architecture</action>
+<action>Identify FRs not yet covered by done stories</action>
+<action>Check for previously planned undone stories (from migration or earlier sprints)</action>
+
+<output>
+──────────────────────────────────────────────────────────────
+📝 **Creating Stories for Epic {{epic_number}}** ({{allocated_points}} pts allocated)
+
+**Epic:** {{epic_title}}
+**Goal:** {{epic_goal}}
+**FRs to cover:** {{remaining_frs}}
+
+**Previously Planned (undone):**
+{{for each undone story}}
+- {{story_key}}: {{story_title}} ({{story_points}} pts) - can use/modify/replace
+{{end}}
+</output>
+
+<action>Analyze FRs and epic scope</action>
+<action>Propose stories that:
+  - Cover remaining FRs
+  - Fit within allocated points
+  - Are appropriately sized (ideally 3-8 pts each)
+  - Can be done by single developer
+  - Have clear acceptance criteria
+</action>
+
+<output>
+**Proposed Stories:**
+
+┌─────────────────────────────────────────────────────────────┐
+{{for each proposed story}}
+│ Story {{story_key}}: {{story_title}}
+│ Points: {{story_points}}
+│ Covers: {{frs_covered}}
+│ 
+│ Acceptance Criteria:
+{{for each AC}}
+│ - Given {{context}}, When {{action}}, Then {{result}}
+{{end}}
+└─────────────────────────────────────────────────────────────┘
+{{end}}
+
+**Total for Epic {{epic_number}}:** {{epic_total_points}} pts
+</output>
+
+<ask>Accept these stories for Epic {{epic_number}}? (Y/n/adjust)</ask>
+
+<check if="user says adjust">
+  <ask>What would you like to adjust? (split/merge/remove/add/describe change)</ask>
+  <action>Iterate on story proposals until user accepts</action>
+</check>
+
+<check if="user accepts">
+  <action>Mark stories as approved for this epic</action>
+  <action>Store in {{approved_stories}} array</action>
+</check>
+
+</action>
+
+<action>Repeat for all selected epics</action>
+
+<action>Proceed to Step 6</action>
+
+</step>
+
+<step n="6" goal="Review Sprint Plan">
+
+<action>Calculate total points from {{approved_stories}}</action>
+
+<output>
+═══════════════════════════════════════════════════════════════
+📋 **Sprint Plan Summary**
+═══════════════════════════════════════════════════════════════
+
+**Target Capacity:** {{target_capacity}} pts
+**Planned Stories:** {{total_points}} pts
+**Variance:** {{variance}} pts
+
+──────────────────────────────────────────────────────────────
+**Stories by Epic:**
+
+{{for each epic}}
+📦 **Epic {{epic_number}}: {{epic_title}}** ({{epic_points}} pts)
+{{for each story in epic}}
+   ├── {{story_key}}: {{story_title}} ({{story_points}} pts)
+{{end}}
+{{end}}
+
+──────────────────────────────────────────────────────────────
+**All Stories:**
+
+| Key | Title | Points | Epic |
+|-----|-------|--------|------|
+{{for each story}}
+| {{story_key}} | {{story_title}} | {{story_points}} | {{epic_number}} |
+{{end}}
+
+**Total:** {{total_points}} points
+</output>
+
+<check if="total_points exceeds target_capacity significantly (>)">
+  <output>
+⚠️ **Warning:** Planned points ({{total_points}}) exceed target capacity ({{target_capacity}}) by {{overage}} points.
+
+Consider removing some stories or increasing capacity.
+  </output>
+</check>
+
+<ask>Does this sprint plan look good? (Y/n)</ask>
+
+<check if="user says no">
+  <output>
+Options:
+1. Remove stories
+2. Add stories  
+3. Adjust capacity
+4. Cancel and start over
+  </output>
+  <action>Handle user choice and iterate</action>
+</check>
+
+<check if="user says yes">
+  <action>Proceed to Step 7</action>
+</check>
+
+</step>
+
+<step n="7" goal="Set Sprint Dates and Team">
+
+<action>Get current date as {{start_date}}</action>
+
+<ask>What is the target end date for this sprint? (e.g., "2024-01-19" or "2 weeks")</ask>
+
+<action>Parse user response into {{target_end}} date</action>
+
+<ask>Who is on the sprint team? (comma-separated names, or press Enter to skip)</ask>
+
+<action>Parse into {{team_members}} array</action>
+
+<action>Proceed to Step 8</action>
+
+</step>
+
+<step n="8" goal="Create Sprint File and Update Epics">
+
+<action>Determine next sprint number from existing sprint files</action>
+<action>Set {{sprint_number}}</action>
+
+<action>Create sprint file at {sprints_dir}/sprint-{{sprint_number}}.yaml</action>
+
+<output>
+📝 Creating Sprint {{sprint_number}} file...
+</output>
+
+<action>Write sprint file with:
+  - sprint_number
+  - status: active
+  - dates: start, target_end
+  - team_members
+  - planned_stories (with epic linkage, points, status: planned)
+  - metrics: total_points, completed_points: 0
+</action>
+
+<action>For each story in {{approved_stories}}:</action>
+<action>APPEND story to epic file in {planning_artifacts}/epics.md</action>
+<action>Update Story Summary table in epic section</action>
+<action>Update epic status (not-started → in-progress if first story)</action>
+
+<output>
+📝 Appending stories to epic files...
+</output>
+
+<critical>🔄 INVOKE CREATE-STORY WORKFLOW FOR EACH STORY</critical>
+<action>For each story in {{approved_stories}}:</action>
+<action>Invoke create-story workflow with mode="create" and story_key</action>
+<note>The create-story workflow will create comprehensive story files with full context analysis</note>
+<note>This ensures all stories have the same high-quality context regardless of how they're initiated</note>
+
+<output>
+📝 Creating story files via create-story workflow...
+</output>
+
+<output>
+═══════════════════════════════════════════════════════════════
+✅ **Sprint {{sprint_number}} Created!**
+═══════════════════════════════════════════════════════════════
+
+**Sprint Details:**
+- Sprint Number: {{sprint_number}}
+- Status: active
+- Start Date: {{start_date}}
+- Target End: {{target_end}}
+- Team: {{team_members or "Not specified"}}
+
+**Stories:** {{story_count}} stories, {{total_points}} points
+
+**Files Created:**
+- {sprints_dir}/sprint-{{sprint_number}}.yaml
+- {{for each story}} {implementation_artifacts}/{{story_key}}.md
+
+**Files Updated:**
+- {planning_artifacts}/epics.md (stories appended)
+
+──────────────────────────────────────────────────────────────
 **Next Steps:**
 
-1. Review the generated {status_file}
-2. Use this file to track development progress
-3. Agents will update statuses as they work
-4. Re-run this workflow to refresh auto-detected statuses
+1. Run `/bmad-bmm-sprint-status` to view sprint progress
+2. Run `/bmad-bmm-dev-story` to start development on a story
+3. When sprint complete, run `/bmad-bmm-sprint-review`
+</output>
 
 </step>
 
 </workflow>
 
-## Additional Documentation
+---
 
-### Status State Machine
+## Story Points Guide
 
-**Epic Status Flow:**
+| Points | Complexity | Time Rough Guide |
+|--------|------------|------------------|
+| 1 | Trivial | < 2 hours |
+| 2 | Simple | 2-4 hours |
+| 3 | Small | 4-8 hours (half day) |
+| 5 | Medium | 1-2 days |
+| 8 | Large | 2-4 days |
+| 13 | Very Large | 4-5 days (consider splitting) |
+| 21 | Epic-like | 1+ week (must split) |
 
-```
-backlog → in-progress → done
-```
+---
 
-- **backlog**: Epic not yet started
-- **in-progress**: Epic actively being worked on (stories being created/implemented)
-- **done**: All stories in epic completed
+## Story Creation Principles
 
-**Story Status Flow:**
+1. **Single developer** - Each story can be done by one person
+2. **Clear scope** - Well-defined boundaries
+3. **Testable** - Has acceptance criteria
+4. **Valuable** - Delivers user value
+5. **Sized right** - 3-8 points ideal, split if > 13
 
-```
-backlog → ready-for-dev → in-progress → review → done
-```
+---
 
-- **backlog**: Story only exists in epic file
-- **ready-for-dev**: Story file created (e.g., `stories/1-3-plant-naming.md`)
-- **in-progress**: Developer actively working
-- **review**: Ready for code review (via Dev's code-review workflow)
-- **done**: Completed
+## Epic Status Updates
 
-**Retrospective Status:**
+When stories are created and appended to epic files:
 
-```
-optional ↔ done
-```
+| Condition | Epic Status |
+|-----------|-------------|
+| No stories done yet | `not-started` |
+| Some stories done, more remaining | `in-progress` |
+| All stories done | `done` |
 
-- **optional**: Ready to be conducted but not required
-- **done**: Finished
+---
 
-### Guidelines
+## Files Referenced
 
-1. **Epic Activation**: Mark epic as `in-progress` when starting work on its first story
-2. **Sequential Default**: Stories are typically worked in order, but parallel work is supported
-3. **Parallel Work Supported**: Multiple stories can be `in-progress` if team capacity allows
-4. **Review Before Done**: Stories should pass through `review` before `done`
-5. **Learning Transfer**: SM typically creates next story after previous one is `done` to incorporate learnings
+| File | Purpose |
+|------|---------|
+| `{sprints_dir}/sprint-N.yaml` | Sprint definition |
+| `{planning_artifacts}/epics.md` | Epic containers + stories |
+| `{implementation_artifacts}/*.md` | Story detail files |
+| `{velocity_log}` | Velocity history |

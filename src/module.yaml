@@ -1,9 +1,9 @@
-code: gds
-name: "BMGD: BMad Game Dev Studio"
-header: "BMad Game Development Studio Module"
-subheader: ""
+code: tgs
+name: "BMad True Agile for Game Dev Studio"
+header: "BMad True Agile Game Development Studio Module"
+subheader: "With deviation detection and capacity-first sprint planning"
 default_selected: false
-module_version: 0.1.4
+module_version: 1.0.0
 
 # Variables from Core Config inserted:
 ## user_name

@@ -1,0 +1,48 @@
+# Epic Status Tracking Template
+# Use this file to track epic completion across sprints
+
+project: {{project_name}}
+last_updated: {{date}}
+
+# Epic Status Definitions:
+# ========================
+# - backlog: Epic not yet started, no stories in any sprint
+# - in-progress: Epic has stories in active or completed sprints
+# - done: All epic stories completed and accepted
+
+epics:
+  1:
+    title: "Epic 1: {{epic_title}}"
+    status: backlog
+    total_stories: 0
+    completed_stories: 0
+    total_points: 0
+    completed_points: 0
+    first_sprint: null
+    last_sprint: null
+    
+  2:
+    title: "Epic 2: {{epic_title}}"
+    status: backlog
+    total_stories: 0
+    completed_stories: 0
+    total_points: 0
+    completed_points: 0
+    first_sprint: null
+    last_sprint: null
+
+# Sprint History (which sprints worked on each epic)
+sprint_history:
+  epic-1:
+    - sprint: 1
+      stories_planned: 0
+      stories_completed: 0
+      points_completed: 0
+
+# Summary Statistics
+summary:
+  total_epics: 0
+  epics_completed: 0
+  epics_in_progress: 0
+  epics_backlog: 0
+  overall_completion: 0%

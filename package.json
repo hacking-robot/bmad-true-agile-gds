@@ -1,15 +1,19 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "name": "bmad-game-dev-studio",
-  "version": "0.1.10",
-  "description": "A BMad MEthod Core Module that offers a substantial stand alone module for Game Development across multiple supported platforms",
+  "name": "bmad-true-agile-gds",
+  "version": "1.0.0",
+  "description": "BMad Game Dev Studio with True Agile: Deviation detection, capacity-first sprint planning for game development",
   "keywords": [
     "bmad",
-    "game-dev"
+    "game-dev",
+    "agile",
+    "deviation-detection",
+    "sprint-planning",
+    "true-agile"
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bmad-code-org/bmad-module-game-dev-studio.git"
+    "url": "git+https://github.com/davideme/bmad-true-agile-gds.git"
   },
   "license": "MIT",
   "author": "Brian (BMad) Madison",
