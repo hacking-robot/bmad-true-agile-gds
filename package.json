@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
   "name": "bmad-true-agile-gds",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "BMad Game Dev Studio with True Agile: Deviation detection, capacity-first sprint planning for game development",
   "keywords": [
     "bmad",
