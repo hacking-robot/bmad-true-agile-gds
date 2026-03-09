@@ -1,57 +1,73 @@
-# BMad True Agile for Game Dev Studio
+# BMad True Agile for Game Dev Studio (TGS)
 
-A fork of [BMad Game Dev Studio](https://github.com/bmad-code-org/bmad-module-game-dev-studio) with True Agile enhancements.
+A standalone BMad module for True Agile game development with deviation detection and capacity-first sprint planning.
 
-## What's Different
+## What is True Agile for Games?
 
-This fork extends BMad Game Dev Studio with:
+TGS extends BMad Game Dev Studio with:
 
-- **Deviation Detection**: Step 4 in sprint planning scans your actual codebase and compares it against planning documents, surfacing discrepancies before story creation
-- **Capacity-First Sprint Planning**: Full sprint planning workflow (not just sprint status generation)
-- **Incomplete FR Detection**: Identifies functional requirements from "done" stories that may not be fully implemented
+- **Deviation Detection**: Automatically detect drift between planning documents (GDD, Architecture) and actual game code
+- **Capacity-First Sprint Planning**: Plan sprints based on realistic team capacity
+- **Human-Centric Workflows**: Designed for human game developers using git history as source of truth
 
 ## Installation
 
+### Via bmadboard
+
+TGS is designed to work with [bmadboard](https://github.com/hacking-robot/bmadboard) - just add as a GitHub module:
+
+1. Open bmadboard
+2. Add GitHub module: `hacking-robot/bmad-true-agile-gds`
+3. Install with core module
+
+### Manual Installation (with official bmad-method CLI)
+
 ```bash
-npx bmad-true-agile-gds install
+# Install core module first
+npx bmad-method install --modules core
+
+# Clone and use as custom content
+git clone https://github.com/hacking-robot/bmad-true-agile-gds.git
+npx bmad-method install --custom-content ./bmad-true-agile-gds/src
 ```
 
-## Key Features
+## Module Code
 
-### Deviation Detection (Step 4)
-
-Before creating stories, the workflow checks:
-
-1. **Architecture Drift** - File structure, dependencies, patterns vs. architecture spec
-2. **PRD Drift** - Project scope, features vs. PRD requirements  
-3. **Incomplete FRs** - Previous sprint stories marked done but may have unimplemented requirements
-
-User always chooses whether to:
-- Cancel and run `correct-course` to reconcile
-- Proceed aware of the drift
+`tgs` - Use this code when selecting modules in bmadboard or CLI.
 
 ## Supported Platforms
 
 - Unity
 - Unreal Engine
 - Godot
-- Custom / Other
+- Custom/Other
 
-## Module Code
+## Features
 
-- `tgs` - True Agile Game Dev Studio
+### Deviation Detection (Step 4 in Sprint Planning)
 
-## Upstream
+During sprint planning, automatically:
+1. Scan game code for architecture drift
+2. Check GDD drift (scope, features, mechanics)
+3. Identify incomplete features from previous sprint
 
-Forked from [bmad-code-org/bmad-module-game-dev-studio](https://github.com/bmad-code-org/bmad-module-game-dev-studio)
+### Capacity-First Sprint Planning
 
-To sync with upstream:
+1. Start with team capacity
+2. Load velocity history
+3. Select epics based on realistic capacity
+4. Create stories that fit the sprint
 
-```bash
-git fetch upstream
-git merge upstream/master
-```
+### Game-Specific Workflows
+
+- **Game Architecture**: Design game systems, patterns, and engine-specific implementations
+- **Dev Story**: Develop game features with built-in testing
+- **Game Test**: Comprehensive testing workflows for all platforms
 
 ## License
 
 MIT
+
+## Credits
+
+Based on [BMad Game Dev Studio](https://github.com/bmad-code-org/bmad-module-game-dev-studio) by Brian (BMad) Madison
