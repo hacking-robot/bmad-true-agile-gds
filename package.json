@@ -1,30 +1,9 @@
 {
   "name": "bmad-true-agile-gds",
   "version": "2.0.0",
-  "description": "BMad True Agile Game Dev Studio Module: Deviation detection, capacity-first sprint planning for game development",
-  "keywords": [
-    "bmad",
-    "game-dev",
-    "agile",
-    "deviation-detection",
-    "sprint-planning",
-    "true-agile",
-    "human-mode"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/hacking-robot/bmad-true-agile-gds.git"
-  },
+  "description": "BMad True Agile Game Dev Studio Module: Deviation detection, capacity-first sprint planning for game development. Use via bmadboard or git clone + --custom-content.",
+  "keywords": ["bmad", "game-dev", "agile", "deviation-detection", "sprint-planning", "true-agile"],
+  "repository": "https://github.com/hacking-robot/bmad-true-agile-gds",
   "license": "MIT",
-  "author": "hacking-robot",
-  "files": [
-    "src/"
-  ],
-  "publishConfig": {
-    "access": "public"
-  },
-  "bugs": {
-    "url": "https://github.com/hacking-robot/bmad-true-agile-gds/issues"
-  },
-  "homepage": "https://github.com/hacking-robot/bmad-true-agile-gds#readme"
+  "author": "hacking-robot"
 }
