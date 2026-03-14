@@ -2,6 +2,12 @@ name: dev-story
 description: 'Story implementation and testing workflow. Use when the user says "lets implement story tasks" or "lets write tests for story"'
 author: "BMad"
 
+# Self-describing metadata for workflow discovery
+phase: implementation
+code: DS
+agent: game-dev
+sequence: 20
+
 # Critical variables from config
 config_source: "{project-root}/_bmad/gds/config.yaml"
 output_folder: "{config_source}:output_folder"

@@ -2,6 +2,13 @@ name: sprint-planning
 description: "Plan a new sprint by selecting ready stories from any epic. One sprint active at a time, cross-epic selection, story point capacity planning."
 author: "BMad"
 
+# Self-describing metadata for workflow discovery
+phase: implementation
+code: SP
+agent: game-scrum-master
+sequence: 10
+tooltip: "Creates sprint-status.yaml and individual sprint files. Selects ready stories from any epic based on capacity."
+
 # Critical variables from config
 config_source: "{project-root}/_bmad/gds/config.yaml"
 user_name: "{config_source}:user_name"
