@@ -1,5 +1,5 @@
-code: tgs
-name: "BMad True Agile for Game Dev Studio"
+code: gds
+name: "BMad Game Dev Studio"
 header: "BMad True Agile Game Development Studio Module"
 subheader: "With deviation detection and capacity-first sprint planning"
 default_selected: false

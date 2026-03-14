@@ -1,10 +1,10 @@
-# BMad True Agile for Game Dev Studio (TGS)
+# BMad True Agile for Game Dev Studio (GDS)
 
-A standalone BMad module for True Agile game development with deviation detection and capacity-first sprint planning.
+A BMad module for True Agile game development with deviation detection and capacity-first sprint planning. This is a drop-in replacement for the official `gds` module.
 
 ## What is True Agile for Games?
 
-TGS extends BMad Game Dev Studio with:
+This module extends BMad Game Dev Studio with:
 
 - **Deviation Detection**: Automatically detect drift between planning documents (GDD, Architecture) and actual game code
 - **Capacity-First Sprint Planning**: Plan sprints based on realistic team capacity
@@ -14,11 +14,11 @@ TGS extends BMad Game Dev Studio with:
 
 ### Via bmadboard
 
-TGS is designed to work with [bmadboard](https://github.com/hacking-robot/bmadboard) - just add as a GitHub module:
+Install as a GitHub module to override the official gds module:
 
 1. Open bmadboard
 2. Add GitHub module: `hacking-robot/bmad-true-agile-gds`
-3. Install with core module
+3. Install with core module (this module will be used as `gds`)
 
 ### Manual Installation (with official bmad-method CLI)
 
@@ -33,7 +33,7 @@ npx bmad-method install --custom-content ./bmad-true-agile-gds/src
 
 ## Module Code
 
-`tgs` - Use this code when selecting modules in bmadboard or CLI.
+`gds` - Uses the same module code as the official BMad Game Dev Studio module.
 
 ## Supported Platforms
 
